@@ -61,8 +61,9 @@ app.use(passport.initialize()); //it sets up passport session
 
 app.use(passport.session());
 
-function checkLoggedIn(req, res, next){
-    const isLoggedIn = true;
+function checkLoggedIn(req, res, next){ //to restrict the users
+    console.log('Current user is:', req.user);
+    const isLoggedIn = req.isAuthenticated() && req.user;
     if(! isLoggedIn){
         return res.status(401).json({
             error: 'You must log in',
@@ -85,7 +86,10 @@ app.get('/auth/google/callback',passport.authenticate('google',{
 (req, res) => {
     console.log('Googel called us back!');
 });
-app.get('/auth/logout', (req, res) => {});
+app.get('/auth/logout', (req, res) => {
+    req.logout(); // remove req.user and clears any logged in session
+    return res.redirect('/');
+});
 
 app.get('/secret', checkLoggedIn, (req, res) => {
     return res.send('your personal severet number is 88!');
